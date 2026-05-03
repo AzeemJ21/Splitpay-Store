@@ -25,6 +25,10 @@ type Props = {
   result: "idle" | "success" | "failure";
   orderId?: string;
   orderEmail?: string;
+  /** SplitPay flow completed via dashboard API (customer sees notification there). */
+  liveSplitpayRecorded?: boolean;
+  /** e.g. missing DEMO_STORE_SECRET — checkout OK but dashboard not updated */
+  successHint?: string;
   errorMessage?: string;
 };
 
@@ -80,6 +84,8 @@ export function PaymentProcessingModal({
   result,
   orderId,
   orderEmail,
+  liveSplitpayRecorded,
+  successHint,
   errorMessage,
 }: Props) {
   const splitSteps: SplitStep[] = [
@@ -172,6 +178,17 @@ export function PaymentProcessingModal({
                 {orderEmail && (
                   <p className="text-sm text-white/75">
                     A confirmation has been sent to <span className="text-white">{orderEmail}</span>
+                  </p>
+                )}
+                {liveSplitpayRecorded && (
+                  <p className="text-sm text-emerald-200/90">
+                    This demo purchase was saved to the customer&apos;s SplitPay dashboard — check the bell and
+                    Transactions.
+                  </p>
+                )}
+                {successHint && (
+                  <p className="text-sm text-amber-200/95" role="status">
+                    {successHint}
                   </p>
                 )}
                 <Link

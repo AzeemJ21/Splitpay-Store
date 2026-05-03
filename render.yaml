@@ -11,3 +11,5 @@ services:
         sync: false
       - key: NEXT_PUBLIC_SPLITPAY_API_URL
         sync: false
+      - key: DEMO_STORE_SECRET
+        sync: false

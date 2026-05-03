@@ -8,7 +8,8 @@ export default function AboutPage() {
       <p className="mt-6 leading-relaxed text-dark-800/90">
         SplitPay lets you divide a single purchase across two cards — perfect for rewards maximization, shared
         purchases, or staying within card limits. This storefront is a separate demo app from the SplitPay dashboard;
-        checkout integration here is simulated for your FYP presentation.
+        checkout is simulated, but with matching <code className="text-sm">DEMO_STORE_SECRET</code> on the store and
+        dashboard, SplitPay checkouts also appear on the customer&apos;s dashboard (notifications and transactions).
       </p>
       <ul className="mt-8 list-inside list-disc space-y-2 text-dark-800/90">
         <li>Add items to your cart on this store (mock catalog).</li>

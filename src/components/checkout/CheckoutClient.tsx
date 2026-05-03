@@ -60,6 +60,9 @@ export function CheckoutClient() {
   const [result, setResult] = useState<"idle" | "success" | "failure">("idle");
   const [orderId, setOrderId] = useState<string | undefined>();
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  /** True when SplitPay checkout recorded a demo row on the dashboard. */
+  const [liveSplitpayRecorded, setLiveSplitpayRecorded] = useState(false);
+  const [successHint, setSuccessHint] = useState<string | undefined>();
 
   const a1 = parseAmountInput(spC1Amount);
   const a2 = parseAmountInput(spC2Amount);
@@ -160,6 +163,8 @@ export function CheckoutClient() {
     setResult("idle");
     setOrderId(undefined);
     setErrorMessage(undefined);
+    setLiveSplitpayRecorded(false);
+    setSuccessHint(undefined);
     setModalOpen(true);
     setModalMode(paymentMethod);
     setSplitStep(0);
@@ -214,8 +219,15 @@ export function CheckoutClient() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     }).then(async (res) => {
-      const j = (await res.json()) as { success?: boolean; orderId?: string; error?: string };
-      return j;
+      const j = (await res.json()) as {
+        success?: boolean;
+        orderId?: string;
+        error?: string;
+        source?: string;
+        dashboardSynced?: boolean;
+        warning?: string;
+      };
+      return { ok: res.ok, ...j };
     });
 
     try {
@@ -235,6 +247,8 @@ export function CheckoutClient() {
         if (data.success && data.orderId) {
           clearCart();
           setOrderId(data.orderId);
+          setLiveSplitpayRecorded(Boolean(data.dashboardSynced));
+          setSuccessHint(typeof data.warning === "string" ? data.warning : undefined);
           setResult("success");
         } else {
           setErrorMessage(data.error || "Payment failed.");
@@ -274,6 +288,8 @@ export function CheckoutClient() {
     setSplitUserName(null);
     setSplitUserId(null);
     setSplitCodeError(null);
+    setLiveSplitpayRecorded(false);
+    setSuccessHint(undefined);
   };
 
   const handleContinueShopping = () => {
@@ -285,7 +301,10 @@ export function CheckoutClient() {
     <>
       <div className="mx-auto max-w-6xl px-4 py-10 md:px-6">
         <h1 className="font-heading text-3xl font-bold text-dark-900">Checkout</h1>
-        <p className="mt-1 text-sm text-dark-800/70">Secure checkout — payments are simulated for this prototype.</p>
+        <p className="mt-1 text-sm text-dark-800/70">
+          Secure checkout — payments are simulated. SplitPay checkout can still post to your dashboard when{" "}
+          <code className="rounded bg-zinc-100 px-1 py-0.5 text-xs">DEMO_STORE_SECRET</code> matches on both apps.
+        </p>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-5 lg:gap-12">
           <div className="lg:col-span-3 space-y-10">
@@ -679,6 +698,8 @@ export function CheckoutClient() {
         result={result}
         orderId={orderId}
         orderEmail={email}
+        liveSplitpayRecorded={liveSplitpayRecorded}
+        successHint={successHint}
         errorMessage={errorMessage}
         onTryAgain={handleTryAgain}
         onContinueShopping={handleContinueShopping}
